@@ -1,0 +1,286 @@
+安装webpack
+webpack
+webpack - cli--
+save - dev
+
+创建
+webpack.config.js
+创建 app目录
+创建 index.tmpl.html
+创建index.js
+安装磨板组件
+npm install  html-webpack-plugin   --save - dev
+
+
+配置模板组件
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const path = require('path');
+
+plugins: [
+    new HtmlWebpackPlugin({
+        minify: {
+            removeAttributeQuotes: true,//去掉属性值后的双引号
+        },
+        hash: true,//去除缓存
+        template: './app/index.html',//模板文件
+        filename: path.resolve(__dirname, 'build/index.html'),//磨板输出文件
+
+    })
+];
+
+//创建 server
+npm install webpack-dev-server --save-dev
+package.json 配置
+"server": "webpack-dev-server"
+配置
+devServer: {
+    contentBase: path.resolve(__dirname, 'build'),// 项目根目录
+    host: '172.18.0.6', // ip地址
+    compress:true, // 服务器压缩
+    open : true, // 自动打开服务器
+    port:8080
+}
+
+// 打包css
+
+npm install style-loader css-loader  postcss-loader autoprefixer --save-dev  //css3 自动加前缀
+extract-text-webpack-plugin@next 代码分离
+
+配置
+在项目根目录下创建 css3 自动加前缀的配置文件 postcss.config.js
+
+module.exports = {
+    plugins:[
+    require("autoprefixer")
+    ]
+}
+
+
+webpack.config.js 配置
+
+const extractTextWebpackPlugin = require('extract-text-webpack-plugin');//css打包
+const extractCss = new extractTextWebpackPlugin('css/[name].[chunkhash:8].css');
+/******************************
+const extractCss = new extractTextWebpackPlugin(
+{
+    filename:  (getPath) => { //修改名字
+    return getPath('css/[name].[chunkhash:8].css').replace('css/vendors', 'css/index');
+}
+});
+const extractLESS = new extractTextWebpackPlugin('css/[name]-two.css');
+*********************************/
+
+
+module: {
+    rules: [
+    {
+        test: /\.css$/,
+        use: extractCss.extract({// css分离
+        fallback: "style-loader",
+        use: [
+            {
+                loader:"css-loader",
+                options:{
+                importLoaders:1, // css-loader
+                minimize: true
+
+            }
+            },
+            {
+                loader:'postcss-loader'// 自动加前缀
+            }
+
+            ]
+      })
+    }
+]
+}
+plugins: [
+    extractCss //css 分离
+]
+
+去除冗余 css
+安装  npm install purify-css  purifycss-webpack --save-dev
+
+webpack.config.js配置
+const purifyCssPlugin = require('purifycss-webpack'); //css抽离
+const glob = require('glob’); // 引入node全局变量
+
+plugin:[
+    new purifyCssPlugin({
+    paths:glob.sync(path.join('app/*.html')),//src 下所有的HTML没用的css就删除
+    }),
+]
+
+打包css 背景图片
+
+安装  url-loader file-loader --save-dev
+
+
+webpack.config.js 配置
+
+module: {
+    rules: [
+        { // 打包图片
+            test: /\.(gif|png|jpg|woff|svg|ttf|eot|jpeg)$/i,//图片的处理
+            use: [{
+            loader: 'url-loader',
+            options: {
+            limit: 500,//当图片小于这个值打包成bsae64 如果是一个大于的他会生成一个图片
+            outputPath: 'images',// 指定打包后的图片位置
+            name: '[name].[ext]?[hash]',//name:'[path][name].[ext]
+            }
+        }
+    ]
+}
+
+打包html src中的图片
+npm install html-withimg-loader --save-dev
+webpack.config.js 配置
+
+module: {
+  rules: [
+        {
+        test: /\.(htm|html)$/i,
+        loader: 'html-withimg-loader'// 分离HTMLimg
+        },
+    ]
+}
+
+//版权声明
+
+const webpack = require('webpack');
+
+plugins:[
+new webpack.BannerPlugin('mazha的开发.email:5345623132123'),// 版权声明
+]
+
+
+// 配置热打包 package.json
+更该脚本命令
+"webpack": "webpack --watch",
+
+watchOptions: { // 热打包
+    poll:1000,//1秒钟打包一次
+    aggregateTimeout:500,//对多需要500打包一次
+    ignored:/node_modules/// 不监控的模块监控
+},
+
+静态文件copy
+npm install copy-webpack-plugin --save-dev
+const copyWebpackPlugin = require('copy-webpack-plugin'); //静态文件copy
+new copyWebpackPlugin([
+    {
+    from:__dirname + '/app/static',//copy目录
+    to:'./static'//copy到哪里
+    }
+])
+
+// 获取环境变量
+
+export type=dev&&webpack --watch
+// wind set type=dev&webpack --watch
+
+const webPath = {};
+if(process.env.type == 'dev'){
+    console.log(process.env.type);
+    webPath.publicPath = "http://192.168.0.105:8080/"//配置文件的路径
+    } else {
+    webPath.publicPath = "http://192.168.0.105:8080/" // 生产环境配置
+}
+
+// json js jsx 去后缀
+resolve: {
+  extensions: ['.js', '.jsx','.json'],
+}
+
+打包 less
+
+npm install less less-loader  --save-dev
+
+{
+test: /\.less$/,
+    use: extractCss.extract({  // 打包less 并从js中分离css
+    fallback: "style-loader",
+    use: ["css-loader","less-loader"]
+    })
+},
+
+// 打包 sass
+npm install node-sass sass-loader –save-dev
+
+{
+    test: /\.scss$/,
+    use: extractCss.extract({  // 打包sass 并从js中分离css
+    fallback: "style-loader",
+    use: ["css-loader","sass-loader"]
+    })
+},
+
+// 安装 babel 和 react 解析
+
+npm install babel-core  babel-preset-env babel-preset-react babel-loader@7.1.5 --save-dev
+
+创建 .babelrc 配置项
+
+{
+    "presets": [
+    "env",
+    "react",
+    ]
+}
+module: {
+    rules: [
+        {
+        test:/\.(jsx|js)$/,
+        use:[{
+        loader:'babel-loader',//转换es6 react
+        }],
+        exclude:/node_modules/ // 去掉node 模块
+        }
+    ]
+}
+
+
+安装react 局部刷新依赖
+npm install babel-preset-react-hmre react-transform-hmr react-transform-catch-errors --save-dev
+
+修改 .babelrc
+
+{
+    "presets": [
+        "env",
+        "react"
+        ],
+    "env": {
+        "development": {
+            "presets": [
+            "react-hmre"
+            ]
+        }
+    }
+}
+
+//代码分离
+
+安装 react 生产环境依赖
+npm install babel-preset-react --save-dev
+
+
+"react": "^16.4.1",
+"react-dom": "^16.4.1",
+"react-redux": "^5.0.7",
+"react-router": "^4.3.1",
+"react-router-dom": "^4.3.1",
+"redux": "^4.0.0",
+"redux-thunk": "^2.3.0"
+
+
+
+
+
+
+
+
+
+
