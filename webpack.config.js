@@ -15,17 +15,16 @@ const glob = require('glob');
         // disable:true// 开发环境下为true 打包环境下false
     });*/
 const webPath = {};
-if(process.env.type == 'dev'){
+if (process.env.type == 'dev') {
     console.log(process.env.type);
-    webPath.publicPath = "http://192.168.0.105:8080/"//配置文件的路径
+    webPath.publicPath = "http://172.18.0.6:8080/"//配置文件的路径
 } else {
-    webPath.publicPath = "http://192.168.0.105:8080/" // 生产环境配置
+    webPath.publicPath = "http://172.18.0.6:8080/" // 生产环境配置
 }
 
 const config = {
-    mode:'development',
-
-    entry:{
+    mode: 'development',
+    entry: {
         app: './app/index.js'
     },
     output: {
@@ -41,15 +40,15 @@ const config = {
                     fallback: "style-loader",
                     use: [
                         {
-                            loader:"css-loader",
-                            options:{
-                                importLoaders:1, // css-loader
+                            loader: "css-loader",
+                            options: {
+                                importLoaders: 1, // css-loader
                                 minimize: true
 
                             }
                         },
                         {
-                            loader:'postcss-loader'// 自动加前缀
+                            loader: 'postcss-loader'// 自动加前缀
                         }
 
                     ]
@@ -59,14 +58,14 @@ const config = {
                 test: /\.less$/,
                 use: extractCss.extract({  // 打包less 并从js中分离css
                     fallback: "style-loader",
-                    use: ["css-loader","less-loader"]
+                    use: ["css-loader", "less-loader"]
                 })
             },
             {
                 test: /\.scss$/,
                 use: extractCss.extract({  // 打包sass 并从js中分离css
                     fallback: "style-loader",
-                    use: ["css-loader","sass-loader"]
+                    use: ["css-loader", "sass-loader"]
                 })
             },
             { // 打包图片
@@ -86,11 +85,11 @@ const config = {
                 loader: 'html-withimg-loader'// 分离HTMLimg
             },
             {
-                test:/\.(jsx|js)$/,
-                use:[{
-                    loader:'babel-loader',//转换es6 react
+                test: /\.(jsx|js)$/,
+                use: [{
+                    loader: 'babel-loader',//转换es6 react
                 }],
-                exclude:/node_modules/ // 去掉node 模块
+                exclude: /node_modules/ // 去掉node 模块
             }
         ]
     },
@@ -137,12 +136,12 @@ cacheGroups: 缓存组。
             maxAsyncRequests: 5,
             maxInitialRequests: 3,
             automaticNameDelimiter: '~',
-            hidePathInfo:true,
+            hidePathInfo: true,
             cacheGroups: {
                 vendors: {
                     test: /[\\/]node_modules[\\/]/,
                     chunks: "all",// 初始快
-                    name:  "vendors", // 打包后的名字
+                    name: "vendors", // 打包后的名字
                     maxSize: 3000000,
                     priority: -1, //优先级
                     minChunks: 1,
@@ -160,38 +159,38 @@ cacheGroups: 缓存组。
         }
     },
     watchOptions: { // 热打包
-        poll:1000,//1秒钟打包一次
-        aggregateTimeout:500,//对多需要500打包一次
-        ignored:/node_modules/// 不监控的模块监控
+        poll: 1000,//1秒钟打包一次
+        aggregateTimeout: 500,//对多需要500打包一次
+        ignored: /node_modules/// 不监控的模块监控
     },
     plugins: [
         new HtmlWebpackPlugin({
-            minify:{
-                removeAttributeQuotes:true,//去掉属性值后的双引号
+            minify: {
+                removeAttributeQuotes: true,//去掉属性值后的双引号
             },
-            hash:true,//去除缓存
-            template:'./app/index.tmpl.html',//模板文件
+            hash: true,//去除缓存
+            template: './app/index.tmpl.html',//模板文件
             filename: path.resolve(__dirname, 'build/index.html')//磨板输出文件
         }),
         extractCss, //css 分离
-        new purifyCssPlugin({
-            paths:glob.sync(path.join('app/*.html')),//src 下所有的HTML没用的css就删除
-         }),
+        new purifyCssPlugin({
+            paths: glob.sync(path.join('app/*.html')),//src 下所有的HTML没用的css就删除
+        }),
         new webpack.BannerPlugin('mazha的开发.email:5345623132123'),// 版权声明
         new copyWebpackPlugin([
             {
-                from:__dirname + '/app/static',//copy目录
-                to:'./static'//copy到哪里
+                from: __dirname + '/app/static',//copy目录
+                to: './static'//copy到哪里
             }
         ]),
     ],
     devServer: {
         contentBase: path.resolve(__dirname, 'build'),// 项目根目录
-        host: '192.168.0.101', // ip地址
-        compress:true, // 服务器压缩
-        open : true, // 自动打开服务器
-        port:8080,
-        inline:true,
+        host: '172.18.0.6', // ip地址
+        compress: true, // 服务器压缩
+        open: true, // 自动打开服务器
+        port: 8080,
+        inline: true,
     }
 
 };
