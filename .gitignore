@@ -1,4 +1,4 @@
 /node_modules
 *.xml
 *.idea
-/bulid
+/build
